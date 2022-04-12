@@ -401,3 +401,10 @@ slam_toolbox:
     minimum_angle_penalty: 0.9
     minimum_distance_penalty: 0.5
     use_response_expansion: true
+
+image_scan_node:
+  ros__parameters:
+    qos_overrides:
+      /parameter_events:
+        publisher:
+          reliability: best_effort

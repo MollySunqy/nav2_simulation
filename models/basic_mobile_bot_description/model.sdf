@@ -213,6 +213,18 @@
         </noise>
       </camera>
       <plugin name="depth_camera_controller" filename="libgazebo_ros_camera.so">
+        <ros>
+          <qos>
+            <topic name="/depth_camera/depth/image_raw">
+              <publisher>
+                <reliability>best_effort</reliability>
+              </publisher>
+              <subscription>
+                <reliability>best_effort</reliability>
+              </subscription>
+            </topic>
+          </qos>
+        </ros>
         <baseline>0.2</baseline>
         <alwaysOn>true</alwaysOn>
         <updateRate>0.0</updateRate>
