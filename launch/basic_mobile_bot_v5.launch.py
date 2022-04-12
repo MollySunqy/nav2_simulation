@@ -146,12 +146,14 @@ def generate_launch_description():
     package='depthimage_to_laserscan',
     executable='depthimage_to_laserscan_node',
     name='image_scan_node',
+    parameters=[{'reliability': 'best_effort'}],
     remappings=[('/depth','/depth_camera/depth/image_raw'),
+    #remappings=[('/depth','/depth_camera/image_raw'),
                 ('/depth_camera_info','/depth_camera/depth/camera_info')
     ]
 
   )
-  
+
   # Start robot localization using an Extended Kalman filter
   start_robot_localization_cmd = Node(
     package='robot_localization',
