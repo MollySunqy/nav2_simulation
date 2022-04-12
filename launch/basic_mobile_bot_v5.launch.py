@@ -29,6 +29,7 @@ def generate_launch_description():
   static_map_path = os.path.join(pkg_share, 'maps', 'smalltown_world.yaml')
   nav2_params_path = os.path.join(pkg_share, 'params', 'nav2_params.yaml')
   nav2_bt_path = FindPackageShare(package='nav2_bt_navigator').find('nav2_bt_navigator')
+  depthimage_to_laserscan = FindPackageShare(package='depthimage_to_laserscan').find('depthimage_to_laserscan')
   
   # Launch configuration variables specific to simulation
   autostart = LaunchConfiguration('autostart')
@@ -138,7 +139,19 @@ def generate_launch_description():
   start_gazebo_client_cmd = IncludeLaunchDescription(
     PythonLaunchDescriptionSource(os.path.join(pkg_gazebo_ros, 'launch', 'gzclient.launch.py')),
     condition=IfCondition(PythonExpression([use_simulator, ' and not ', headless])))
+  
+  
+  # Start converting depth image to laser scan
+  start_depthimage_to_laserscan_cmd = Node(
+    package='depthimage_to_laserscan',
+    executable='depthimage_to_laserscan_node',
+    name='image_scan_node',
+    remappings=[('/depth','/depth_camera/depth/image_raw'),
+                ('/depth_camera_info','/depth_camera/depth/camera_info')
+    ]
 
+  )
+  
   # Start robot localization using an Extended Kalman filter
   start_robot_localization_cmd = Node(
     package='robot_localization',
@@ -201,9 +214,11 @@ def generate_launch_description():
   # Add any actions
   ld.add_action(start_gazebo_server_cmd)
   ld.add_action(start_gazebo_client_cmd)
+  ld.add_action(start_depthimage_to_laserscan_cmd)
   ld.add_action(start_robot_localization_cmd)
   ld.add_action(start_robot_state_publisher_cmd)
   ld.add_action(start_rviz_cmd)
   ld.add_action(start_ros2_navigation_cmd)
 
   return ld
+
