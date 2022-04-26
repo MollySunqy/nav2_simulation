@@ -145,7 +145,8 @@ def generate_launch_description():
   start_depthimage_to_laserscan_cmd = Node(
     package='pointcloud_to_laserscan',
     executable='pointcloud_to_laserscan_node',
-    name='image_scan_node',
+    name='pointcloud_to_laserscan',
+    parameters=[{'use_sim_time': use_sim_time, }],
     remappings=[('/cloud_in','/depth_camera/points')
     ]
 
@@ -211,13 +212,14 @@ def generate_launch_description():
   ld.add_action(declare_world_cmd)
 
   # Add any actions
+  #ld.add_action(start_depthimage_to_laserscan_cmd)
   ld.add_action(start_gazebo_server_cmd)
   ld.add_action(start_gazebo_client_cmd)
-  #ld.add_action(start_depthimage_to_laserscan_cmd)
   ld.add_action(start_robot_localization_cmd)
   ld.add_action(start_robot_state_publisher_cmd)
   ld.add_action(start_rviz_cmd)
   ld.add_action(start_ros2_navigation_cmd)
+
 
   return ld
 
