@@ -29,7 +29,7 @@ def generate_launch_description():
   static_map_path = os.path.join(pkg_share, 'maps', 'smalltown_world.yaml')
   nav2_params_path = os.path.join(pkg_share, 'params', 'nav2_params.yaml')
   nav2_bt_path = FindPackageShare(package='nav2_bt_navigator').find('nav2_bt_navigator')
-  depthimage_to_laserscan = FindPackageShare(package='depthimage_to_laserscan').find('depthimage_to_laserscan')
+  depthimage_to_laserscan = FindPackageShare(package='pointcloud_to_laserscan').find('pointcloud_to_laserscan')
   
   # Launch configuration variables specific to simulation
   autostart = LaunchConfiguration('autostart')
@@ -45,6 +45,8 @@ def generate_launch_description():
   use_rviz = LaunchConfiguration('use_rviz')
   use_sim_time = LaunchConfiguration('use_sim_time')
   use_simulator = LaunchConfiguration('use_simulator')
+  #target_frame = LaunchConfiguration('base_link')
+
   world = LaunchConfiguration('world')
   
   # Map fully qualified names to relative ones so the node's namespace can be prepended.
@@ -146,6 +148,7 @@ def generate_launch_description():
     package='pointcloud_to_laserscan',
     executable='pointcloud_to_laserscan_node',
     name='image_scan_node',
+    #parameters=[{'target_frame': target_frame}],
     remappings=[('/cloud_in','/depth_camera/points')
     ]
 
@@ -213,8 +216,8 @@ def generate_launch_description():
   # Add any actions
   ld.add_action(start_gazebo_server_cmd)
   ld.add_action(start_gazebo_client_cmd)
-  #ld.add_action(start_depthimage_to_laserscan_cmd)
   ld.add_action(start_robot_localization_cmd)
+  ld.add_action(start_depthimage_to_laserscan_cmd)
   ld.add_action(start_robot_state_publisher_cmd)
   ld.add_action(start_rviz_cmd)
   ld.add_action(start_ros2_navigation_cmd)
