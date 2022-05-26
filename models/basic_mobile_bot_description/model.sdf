@@ -145,10 +145,14 @@
     </sensor>
   </link>
 
-  <!-- ****************************** LIDAR *****************************    -->
-  <link name="lidar_link">    
+ 
+  <!-- *********************** DEPTH CAMERA ******************************  -->
+  <!-- The depth camera (e.g. Intel Realsense camera). -->
+
+  <link name="camera_link">
+    <pose>0.35 0 0.05 0 0 0</pose>
     <inertial>
-      <pose>0.215 0 0.13 0 0 0</pose>
+      <pose>0.35 0 0.05 0 0 0</pose>
       <inertia>
         <ixx>0.001</ixx>
         <ixy>0.000</ixy>
@@ -157,66 +161,86 @@
         <iyz>0.000</iyz>
         <izz>0.001</izz>
       </inertia>
-      <mass>0.114</mass>
+      <mass>0.035</mass>
     </inertial>
 
-    <collision name="lidar_collision">
-      <pose>0.215 0 0.13 0 0 0</pose>
+    <visual name="camera_visual">
+      <pose>0.35 0 0.05 0 0 0</pose>
       <geometry>
-        <cylinder>
-          <radius>0.0508</radius>
-          <length>0.18</length>
-        </cylinder>
-      </geometry>
-    </collision>
-
-    <visual name="lidar_visual">
-      <pose>0.215 0 0.13 0 0 0</pose>
-      <geometry>
-        <cylinder>
-          <radius>0.0508</radius>
-          <length>0.18</length>
-        </cylinder>
+        <box>
+          <size>0.015 0.08 0.022</size>
+        </box>
       </geometry>
       <material>
-        <ambient>0.0 0.0 0.0 1.0</ambient>
-        <diffuse>0.0 0.0 0.0 1.0</diffuse>
+        <ambient>0 0 0 1.0</ambient>
+        <diffuse>0 0 0 1.0</diffuse>
         <specular>0.0 0.0 0.0 1.0</specular>
         <emissive>0.0 0.0 0.0 1.0</emissive>
       </material>
     </visual>
 
-    <sensor name="lidar" type="ray">
-      <pose>0.215 0 0.215 0 0 0</pose>
+    <collision name="camera_collision">
+      <pose>0.35 0 0.05 0 0 0</pose>
+      <geometry>
+        <box>
+          <size>0.015 0.08 0.022</size>
+        </box>
+      </geometry>
+    </collision>    
+   
+    <sensor name="depth_camera" type="depth">
       <always_on>true</always_on>
       <visualize>true</visualize>
-      <update_rate>5</update_rate>
-      <ray>
-        <scan>
-          <horizontal>
-            <samples>120</samples>
-            <resolution>1.000000</resolution>
-            <min_angle>-3.14159</min_angle>
-            <max_angle>3.14159</max_angle>
-          </horizontal>
-        </scan>
-        <range>
-          <min>0.3</min>
-          <max>15.0</max>
-          <resolution>0.015</resolution>
-        </range>
+      <update_rate>30</update_rate>
+      <camera name="camera">
+        <horizontal_fov>1.02974</horizontal_fov>
+        <image>
+          <width>640</width>
+          <height>480</height>
+          <format>R8G8B8</format>
+        </image>
+        <clip>
+          <near>0.05</near>
+          <far>10</far>
+        </clip>
         <noise>
           <type>gaussian</type>
+          <!-- Noise is sampled independently per pixel on each frame.
+              That pixel's noise value is added to each of its color
+                channels, which at that point lie in the range [0,1]. -->
           <mean>0.0</mean>
-          <stddev>0.01</stddev>
+          <stddev>0.007</stddev>
         </noise>
-      </ray>
-      <plugin name="scan" filename="libgazebo_ros_ray_sensor.so">
+      </camera>
+      <plugin name="depth_camera_controller" filename="libgazebo_ros_camera.so">
         <ros>
-          <remapping>~/out:=scan</remapping>
+          <qos>
+            <topic name="/depth_camera/depth/image_raw">
+              <publisher>
+                <reliability>best_effort</reliability>
+              </publisher>
+              <subscription>
+                <reliability>best_effort</reliability>
+              </subscription>
+            </topic>
+          </qos>
         </ros>
-        <output_type>sensor_msgs/LaserScan</output_type>
-        <frame_name>lidar_link</frame_name>
+        <baseline>0.2</baseline>
+        <alwaysOn>true</alwaysOn>
+        <updateRate>0.0</updateRate>
+        <frame_name>camera_depth_frame</frame_name>
+        <pointCloudCutoff>0.5</pointCloudCutoff>
+        <pointCloudCutoffMax>3.0</pointCloudCutoffMax>
+        <distortionK1>0</distortionK1>
+        <distortionK2>0</distortionK2>
+        <distortionK3>0</distortionK3>
+        <distortionT1>0</distortionT1>
+        <distortionT2>0</distortionT2>
+        <CxPrime>0</CxPrime>
+        <Cx>0</Cx>
+        <Cy>0</Cy>
+        <focalLength>0</focalLength>
+        <hackBaseline>0</hackBaseline>
       </plugin>
     </sensor>
   </link>
@@ -351,13 +375,12 @@
     <child>gps_link</child>
     <pose>0 0 0 0 0 0</pose>
   </joint>  
-  
-  <joint name="lidar_joint" type="fixed">
+
+  <joint name="camera_joint" type="fixed">
     <parent>base_link</parent>
-    <child>lidar_link</child>
+    <child>camera_link</child>
     <pose>0 0 0 0 0 0</pose>
   </joint>
-
  <!-- *********************** WHEEL ODOMETRY ***************************    -->
   <plugin name="basic_mobile_bot_diff_drive" filename="libgazebo_ros_diff_drive.so">
 
